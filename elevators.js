@@ -60,7 +60,7 @@ function Elevator( id_in ) {
 
 			rc += ACCELERATION_TIME + TIME_STOPPED ;			
 //			console.log( "STOP @", flr ) ; 
-			
+
 			stopNum++ ;
 		}
 		while( tgt ) {
@@ -78,7 +78,7 @@ function Elevator( id_in ) {
 				tgt = null ;
 			}
 		}
-		
+
 		return rc ;
 	} ;
 
@@ -97,7 +97,7 @@ function Elevator( id_in ) {
 
 		var viaIndex = null ;
 		var targetIndex = null ;
-		
+
 		while( tgt && (stopNum < this.stops.length) ) {
 			var nextStop = this.stops[stopNum] ;
 			if( Math.sign( nextStop - flr ) !== dir ) {
@@ -150,14 +150,14 @@ function Elevator( id_in ) {
 	} ;
 
 	this.move = function() {
-		
+
 		if( this.stops.length === 0 ) {
 			this.direction = 0 ;
 			return ;
 		}
-		
+
 		this.direction = Math.sign( this.stops[0] - this.floor ) ; 
-		
+
 		this.floor += this.direction ;
 		for( var i=0 ; i<this.stops.length ; i++ ) {
 			if( this.floor === this.stops[i] ) {				
@@ -169,14 +169,14 @@ function Elevator( id_in ) {
 			this.direction = 0 ;
 		}		
 	} ;
-	
+
 	this.upArrow = String.fromCharCode(0x2bc5) ;
 	this.dnArrow = String.fromCharCode(0x2bc6) ;
-	this.noArrow = String.fromCharCode(0x2b2a) ;
-	
+	this.noArrow = " " ;
+
 	this.toString = function() {
 		var arrow = (this.direction>0 ? this.upArrow : (this.direction===0 ? this.noArrow : this.dnArrow) ) ;
-		return "Elevator " + this.id + " @" + this.floor + " " + arrow + this.stops.join( "->" ) ; 
+		return "Elevator " + this.id + " @" + this.floor + " " + arrow + " " + this.stops.join( " - " ) ; 
 	}
 }
 
@@ -200,24 +200,31 @@ for( var i=0 ; i<100 ; i++ ) {
 	for( var e=0 ; e<elevators.length ; e++ ) {
 		elevators[e].move() ;
 	}
-	var canBeSatisfied = false ;
-	var from = Math.floor( 10 * Math.random() ) ;
-	var to   = Math.floor( 10 * Math.random() ) ;
-	if( from !== to && i<99 ) {
-		var minTimeToArrive = 999999 ;
-		var bestElevator = null ;
-		for( var j=0 ; j<elevators.length ; j++ ) {
-			var tta = elevators[j].timeToArrive( to, from ) ;
-			if( tta < minTimeToArrive ) {
-				minTimeToArrive = tta ;
-				bestElevator = elevators[j] ;
+	for( var j=0 ; j<2 ; j++ ) {
+		var from = Math.floor( 10 * Math.random() ) ;
+		var to   = Math.floor( 10 * Math.random() ) ;
+		if( from !== to && i<99 ) {
+			var minTimeToArrive = 999999 ;
+			var bestElevator = null ;
+			for( var k=0 ; k<elevators.length ; k++ ) {
+				var tta = elevators[k].timeToArrive( to, from ) ;
+				if( tta < minTimeToArrive ) {
+					minTimeToArrive = tta ;
+					bestElevator = elevators[k] ;
+				}
+			}
+			if( bestElevator ) {
+				console.log( bestElevator.toString(), "New request", from, "-", to ) ;
+				bestElevator.addRequest( to, from ) ;
+			} else {
+				console.log( "Cannot service request" ) ;
 			}
 		}
-		bestElevator.addRequest( from, to ) ;
 	}
-}
-for( var e=0 ; e<elevators.length ; e++ ) {
-	console.log( elevators[e].toString() ) ;   
+	for( var e=0 ; e<elevators.length ; e++ ) {
+		console.log( elevators[e].toString() ) ;   
+	}
+	console.log( "------------------" ) ;
 }
 
 
