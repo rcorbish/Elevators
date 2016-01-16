@@ -4,8 +4,8 @@
 
 var algos = require( "algos" ) ;
 
-var TIME_FLOOR_TO_FLOOR = 5 ;
-var TIME_STOPPED = 20 ;
+var TIME_FLOOR_TO_FLOOR = 1 ;
+var TIME_STOPPED = 5 ;
 var ACCELERATION_TIME = 1 ;
 
 
@@ -13,6 +13,7 @@ function Elevator( id_in ) {
 	this.id = id_in ;	
 	this.stops = [] ;
 
+	this.pause = 0 ;
 	this.floor = 0 ;
 	this.direction = 0 ;	// stopped
 
@@ -151,7 +152,10 @@ function Elevator( id_in ) {
 
 	
 	this.move = function() {
-
+		if( this.pause > 0 ) {
+			this.pause-- ;
+			return ;
+		}
 		if( this.stops.length === 0 ) {
 			this.direction = 0 ;
 			return ;
@@ -159,9 +163,11 @@ function Elevator( id_in ) {
 
 		this.direction = Math.sign( this.stops[0] - this.floor ) ; 
 
-		this.floor += this.direction ;
+		this.floor += this.direction  ;
 		if( this.floor === this.stops[0] ) {				
 			this.stops.splice( 0,1 ) ;
+			this.pause = TIME_STOPPED ;
+			this.direction = 0 ;
 		}
 		
 		if( this.stops.length === 0 ) {
@@ -169,19 +175,19 @@ function Elevator( id_in ) {
 		}		
 	} ;
 
-	this.upArrow = String.fromCharCode(0x2bc5) ;
-	this.dnArrow = String.fromCharCode(0x2bc6) ;
-	this.noArrow = " " ;
+	this.upArrow = String.fromCharCode(0x21a5) ;
+	this.dnArrow = String.fromCharCode(0x21a7) ;
+	this.noArrow = String.fromCharCode(0x21e2) ;
 
 	this.toString = function() {
 		var arrow = (this.direction>0 ? this.upArrow : (this.direction===0 ? this.noArrow : this.dnArrow) ) ;
-		return "Elevator " + this.id + " @" + this.floor + " " + arrow + " " + this.stops.join( " - " ) ; 
+		return "Elevator " + this.id + " @" + this.floor + " " + arrow + "  " + this.stops.join( "-" ) ; 
 	} ;
 }
 
 
 var elevators = [] ;
-for( var i=1 ; i<9 ; i++ ) {
+for( var i=10 ; i<20 ; i++ ) {
 	elevators.push( new Elevator( "A"+i ) ) ;
 }
 
@@ -195,14 +201,14 @@ for( var i=1 ; i<9 ; i++ ) {
 //console.log( elevators[0].timeToArrive( 9,4 ) ) ;
 
 
-for( var i=0 ; i<100 ; i++ ) {
+for( var i=0 ; i<5000 ; i++ ) {
 	for( var e=0 ; e<elevators.length ; e++ ) {
 		elevators[e].move() ;
 	}
-	for( var j=0 ; j<2 ; j++ ) {
+	for( var j=0 ; j<1 ; j++ ) {
 		var from = Math.floor( 10 * Math.random() ) ;
 		var to   = Math.floor( 10 * Math.random() ) ;
-		if( from !== to && i<99 ) {
+		if( from !== to ) {
 			console.log( "New request", from, "-", to ) ;
 
 			var minTimeToArrive = 999999 ;
