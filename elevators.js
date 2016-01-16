@@ -35,10 +35,10 @@ function Elevator( id_in ) {
 		var tgt = via ;
 		var stopNum = 0 ;
 
-		while( tgt && (stopNum < this.stops.length) ) {
+		while( tgt!==null && (stopNum < this.stops.length) ) {
 			var nextStop = this.stops[stopNum] ;
 			if( Math.sign( nextStop - flr ) !== dir ) {
-				dir = -dir ;
+				dir = Math.sign( nextStop - flr ) ;
 				rc += (2 * ACCELERATION_TIME) ;
 //				console.log( "RVSD @", flr ) ; 
 			}
@@ -63,9 +63,9 @@ function Elevator( id_in ) {
 
 			stopNum++ ;
 		}
-		while( tgt ) {
+		while( tgt!==null ) {
 			if( Math.sign( tgt - flr ) !== dir ) {
-				dir = -dir ;
+				dir = Math.sign( tgt - flr ) ;
 				rc += (2 * ACCELERATION_TIME) ;
 //				console.log( "RVSD @", flr ) ; 
 			}
@@ -98,17 +98,17 @@ function Elevator( id_in ) {
 		var viaIndex = null ;
 		var targetIndex = null ;
 
-		while( tgt && (stopNum < this.stops.length) ) {
+		while( tgt!==null && (stopNum < this.stops.length) ) {
 			var nextStop = this.stops[stopNum] ;
 			if( Math.sign( nextStop - flr ) !== dir ) {
-				dir = -dir ;
+				dir = Math.sign( nextStop - flr ) ;
 //				console.log( "RVSD @", flr ) ; 
 			}
 
 			while( flr !== nextStop ) {
 				if( tgt === flr ) {
 //					console.log( "Splice in before floor", nextStop ) ;
-					if( tgt == via ) {
+					if( tgt === via ) {
 						viaIndex = stopNum ;
 						tgt = target ;
 					} else {
@@ -128,10 +128,10 @@ function Elevator( id_in ) {
 					tgt = null ;
 				}
 			}
-			if( !tgt ) break ;
+			if( tgt===null ) { break ; }
 			stopNum++ ;
 		}
-		while( tgt ) {
+		while( tgt!==null ) {
 			if( tgt===via ) {
 				tgt = target ;
 				viaIndex = this.stops.length ;
@@ -144,11 +144,12 @@ function Elevator( id_in ) {
 			this.stops.splice( viaIndex, 0, via ) ;
 			targetIndex++ ;  // +1 - we just spliced in a value before
 		}
-		if( targetIndex !== null ) {
+		if( targetIndex !== null && this.stops[targetIndex]!==target ) {
 			this.stops.splice( targetIndex, 0, target ) ;
 		}
 	} ;
 
+	
 	this.move = function() {
 
 		if( this.stops.length === 0 ) {
@@ -159,12 +160,10 @@ function Elevator( id_in ) {
 		this.direction = Math.sign( this.stops[0] - this.floor ) ; 
 
 		this.floor += this.direction ;
-		for( var i=0 ; i<this.stops.length ; i++ ) {
-			if( this.floor === this.stops[i] ) {				
-				this.stops.splice( i,1 ) ;
-				break ;
-			}
+		if( this.floor === this.stops[0] ) {				
+			this.stops.splice( 0,1 ) ;
 		}
+		
 		if( this.stops.length === 0 ) {
 			this.direction = 0 ;
 		}		
@@ -177,7 +176,7 @@ function Elevator( id_in ) {
 	this.toString = function() {
 		var arrow = (this.direction>0 ? this.upArrow : (this.direction===0 ? this.noArrow : this.dnArrow) ) ;
 		return "Elevator " + this.id + " @" + this.floor + " " + arrow + " " + this.stops.join( " - " ) ; 
-	}
+	} ;
 }
 
 
@@ -204,17 +203,20 @@ for( var i=0 ; i<100 ; i++ ) {
 		var from = Math.floor( 10 * Math.random() ) ;
 		var to   = Math.floor( 10 * Math.random() ) ;
 		if( from !== to && i<99 ) {
+			console.log( "New request", from, "-", to ) ;
+
 			var minTimeToArrive = 999999 ;
 			var bestElevator = null ;
 			for( var k=0 ; k<elevators.length ; k++ ) {
 				var tta = elevators[k].timeToArrive( to, from ) ;
+//				console.log( tta, elevators[k].toString() ) ;   
 				if( tta < minTimeToArrive ) {
 					minTimeToArrive = tta ;
 					bestElevator = elevators[k] ;
 				}
 			}
 			if( bestElevator ) {
-				console.log( bestElevator.toString(), "New request", from, "-", to ) ;
+//				console.log( "BEST", bestElevator.toString() ) ;
 				bestElevator.addRequest( to, from ) ;
 			} else {
 				console.log( "Cannot service request" ) ;
