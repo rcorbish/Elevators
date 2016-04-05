@@ -2,8 +2,6 @@
  * http://usejsdoc.org/
  */
 
-var algos = require( "algos" ) ;
-
 var TIME_FLOOR_TO_FLOOR = 1 ;
 var TIME_STOPPED = 5 ;
 var ACCELERATION_TIME = 1 ;
@@ -201,7 +199,7 @@ for( var i=10 ; i<20 ; i++ ) {
 //console.log( elevators[0].timeToArrive( 9,4 ) ) ;
 
 
-for( var i=0 ; i<5000 ; i++ ) {
+for( var i=0 ; i<500 ; i++ ) {
 	for( var e=0 ; e<elevators.length ; e++ ) {
 		elevators[e].move() ;
 	}
